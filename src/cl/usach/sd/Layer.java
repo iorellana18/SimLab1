@@ -109,6 +109,13 @@ public class Layer implements Cloneable, EDProtocol {
 			// Registrarse en un tópico
 			case 0:
 				System.out.println("\nRegistrare como suscriptor");
+				resultado = (int)emisor.suscribirseATopico((int)emisor.getID());
+				if(resultado<0){
+					// mensaje de error desde ExampleNode
+				}else{
+					receptor = resultado;
+					((Transport)emisor.getProtocol(transportId)).send(emisor,Network.get(receptor),message,layerId);
+				}
 				break;
 			// Cancelar registro 
 			case 1:

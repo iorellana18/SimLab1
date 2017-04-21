@@ -138,6 +138,31 @@ public class ExampleNode extends GeneralNode {
 		return topicos;
 	}
 	
+	// Se registra en topico existente
+	public int suscribirseATopico(int emisor){
+		setTopicos(buscarTopicos());
+		if(topicos.isEmpty()){
+			System.out.println("No se han encontrado tópicos");
+			return -1;
+		}
+		// Se elige topico entre los existentes para inscribirse
+		int topico = topicos.get(CommonState.r.nextInt(topicos.size()));
+		if(!((ExampleNode) Network.get(emisor)).getSuscribeTo().contains(topico)){
+			//Se añade en suscriptor el topico a la lista
+			((ExampleNode) Network.get(emisor)).getSuscribeTo().add(topico);
+			//Se añade en topico a la lista de suscriptores
+			((ExampleNode) Network.get(topico)).getSuscriptores().add(emisor);
+			System.out.println("Nodo: "+((ExampleNode) Network.get(emisor)).getID()+ " se suscribe a tópico : "+topico);
+			System.out.println("Tópicos a los que esta suscrito: "+((ExampleNode) Network.get(emisor)).getSuscribeTo());
+			System.out.println("Topico "+topico+" reenvía a nodos : " +((ExampleNode)Network.get(topico)).getSuscriptores());
+			return topico;
+		}else{
+			System.out.println("Nodo "+emisor+" intenta suscribirse a nodo "+topico+", pero ya esta suscrito");
+			System.out.println("Topicos a los que esta suscrito : "+((ExampleNode)Network.get(emisor)).getSuscribeTo());
+			return -1;
+			
+		}
+	}
 	
 	// Modificar/Obtener lista a los que se publica
 	public void setṔublishTo(ArrayList<Integer> publishTo){this.publishTo=publishTo;}
