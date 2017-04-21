@@ -104,22 +104,40 @@ public class ExampleNode extends GeneralNode {
 	// Se registra en tópico existente
 	public int registraTopico(int emisor){
 		int receptor;
+		setTopicos(buscarTopicos());
 		if(topicos.isEmpty()){
 			System.out.println("No se han encontrado tópicos");
 			return -1;
 		}else{
 			// Receptor es un random entre los topicos existentes
 			receptor = topicos.get(CommonState.r.nextInt(topicos.size()));
-			//Se añade a lista para publicar del emisor
-			((ExampleNode) Network.get(emisor)).getPublishTo().add(receptor);
-			System.out.println("Nodo: "+((ExampleNode) Network.get(emisor)).getID()+ " añade tópico : "+receptor);
-			System.out.println("Tópicos a los que publica: "+((ExampleNode) Network.get(emisor)).getPublishTo());
-			((ExampleNode) Network.get(receptor)).getPublicadores().add(emisor);
-			System.out.println("Tópico "+receptor+" publicador(es): "+((ExampleNode) Network.get(receptor)).getPublicadores());
-			return receptor;
-			
+			if(!((ExampleNode) Network.get(emisor)).getPublishTo().contains(receptor)){
+				//Se añade a lista para publicar del emisor
+				((ExampleNode) Network.get(emisor)).getPublishTo().add(receptor);
+				System.out.println("Nodo: "+((ExampleNode) Network.get(emisor)).getID()+ " añade tópico : "+receptor);
+				System.out.println("Tópicos a los que publica: "+((ExampleNode) Network.get(emisor)).getPublishTo());
+				((ExampleNode) Network.get(receptor)).getPublicadores().add(emisor);
+				System.out.println("Tópico "+receptor+" publicador(es): "+((ExampleNode) Network.get(receptor)).getPublicadores());
+				return receptor;
+			}else{
+				System.out.println("Nodo "+emisor+" intenta añadir nodo "+receptor+", pero ya esta incluido");
+				System.out.println("Topicos a los que publica : "+((ExampleNode)Network.get(emisor)).getPublishTo());
+				return -1;
+			}
 		}
 	}
+	
+	public ArrayList<Integer> buscarTopicos(){
+		ArrayList<Integer> topicos = new ArrayList<Integer>();
+		for(int i=0; i<Network.size();i++){
+			ExampleNode mainNode = (ExampleNode)Network.get(i);
+			if(mainNode.getIsTopic()){
+				topicos.add(i);
+			}
+		}
+		return topicos;
+	}
+	
 	
 	// Modificar/Obtener lista a los que se publica
 	public void setṔublishTo(ArrayList<Integer> publishTo){this.publishTo=publishTo;}
