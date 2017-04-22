@@ -100,6 +100,7 @@ public class ExampleNode extends GeneralNode {
 	
 	// Se activa cuando recibe mensaje del emisor y lo guarda en su lista de publicadores
 	public void recibeSuscripcion(int publicador, int topico){
+		//actualiza lista de publicadores
 		((ExampleNode) Network.get(topico)).getPublicadores().add(publicador);
 		System.out.println("Publicadores de tópico "+topico+" : "+((ExampleNode) Network.get(topico)).getPublicadores());
 	}
@@ -154,7 +155,8 @@ public class ExampleNode extends GeneralNode {
 		// Se elige topico entre los existentes para inscribirse
 		int topico = topicos.get(CommonState.r.nextInt(topicos.size()));
 		if(!((ExampleNode) Network.get(emisor)).getSuscribeTo().contains(topico)){
-			//Se añade en suscriptor el topico a la lista
+			//Se añade en suscriptor el topico a la lista y topico a la lista
+			((ExampleNode) Network.get(topico)).setIsTopic(true);
 			((ExampleNode) Network.get(emisor)).getSuscribeTo().add(topico);
 			System.out.println("Nodo: "+((ExampleNode) Network.get(emisor)).getID()+ " se suscribe a tópico : "+topico);
 			System.out.println("Tópicos a los que esta suscrito: "+((ExampleNode) Network.get(emisor)).getSuscribeTo());
@@ -172,6 +174,31 @@ public class ExampleNode extends GeneralNode {
 		//Se añade en topico a la lista de suscriptores
 		((ExampleNode) Network.get(topico)).getSuscriptores().add(suscriptor);
 		System.out.println("Tópico "+topico+" atualiza lista de suscriptores : " +((ExampleNode)Network.get(topico)).getSuscriptores());
+	}
+	
+	public int publicarEnTopico(int emisor){
+		// Se escoge entre los tópicos agregados para publicar
+		ArrayList<Integer> topicos = ((ExampleNode) Network.get(emisor)).getPublishTo();
+		
+		if(topicos.isEmpty()){
+			System.out.println("No se han encontrado tópicos");
+			return -1;
+		}else{
+
+			int topico = topicos.get(CommonState.r.nextInt(topicos.size()));
+			System.out.println("Nodo: "+((ExampleNode) Network.get(emisor)).getID()+ " publica a tópico : "+topico);
+			return topico;
+		}
+	}
+	
+	public ArrayList<Integer> topicoRecibePublicacion(int publicador, int topico){
+		System.out.println("Tópico "+topico+" recibe publicación de nodo "+publicador);
+		// Agrega lista de suscriptores
+		ArrayList <Integer> suscriptores = ((ExampleNode)Network.get(topico)).getSuscriptores();
+		System.out.println("Preparándose para reenviar publicación a nodo(s) "+suscriptores);
+		
+		return suscriptores;
+		
 	}
 	
 	// Modificar/Obtener lista a los que se publica

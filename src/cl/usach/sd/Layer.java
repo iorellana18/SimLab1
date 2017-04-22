@@ -1,5 +1,7 @@
 package cl.usach.sd;
 
+import java.util.ArrayList;
+
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
@@ -83,6 +85,27 @@ public class Layer implements Cloneable, EDProtocol {
 				nodoActual.agregarSuscriptor((int)mensaje.getSender(),(int)nodoActual.getID());
 				// No envía mensajes
 				break;
+			case 3:
+				System.out.println("Reenvíar publicación a suscriptores");
+				ArrayList<Integer> suscriptores = nodoActual.topicoRecibePublicacion((int)mensaje.getSender(), (int)nodoActual.getID());
+				if(suscriptores.isEmpty()){
+					System.out.println("No posee suscriptores");
+				}else{
+					// Envía publicación a todos sus suscriptores
+					//Acción 4 anuncia llegada de publicación a nodo
+					mensaje.setAccion(4);
+					// Se setea sender
+					mensaje.setSender(nodoActual.getID());
+					for(int i=0;i<suscriptores.size();i++){
+						//Se obtiene suscriptor
+						int suscriptor = suscriptores.get(i);
+						//Se setea receptor del mensaje
+						mensaje.setDestination(suscriptor);
+						// Se envía a destino
+						((Transport) nodoActual.getProtocol(transportId)).send(nodoActual, Network.get(suscriptor), mensaje, layerId);
+					}
+				}
+				break;
 			}
 		}else{
 		//Realizar alguna acción sin depender de un mensaje
@@ -103,7 +126,7 @@ public class Layer implements Cloneable, EDProtocol {
 					// Acción 0 indicará a receptor que es un nuevo tópico
 					mensaje.setAccion(0);
 					//Envía mensaje a nodo agregado
-					((Transport) nodoActual.getProtocol(transportId)).send(nodoActual, Network.get(receptor), message, layerId);
+					((Transport) nodoActual.getProtocol(transportId)).send(nodoActual, Network.get(receptor), mensaje, layerId);
 					
 					break;
 				// Registrarse en un topico existente	
@@ -119,13 +142,25 @@ public class Layer implements Cloneable, EDProtocol {
 						// Acción 1 indicará a receptor que se agrega el tópico
 						mensaje.setAccion(1);
 						// si nodo no esta añadido le envía un mensaje
-						((Transport)nodoActual.getProtocol(transportId)).send(nodoActual,Network.get(receptor),message,layerId);
-					}
+						((Transport)nodoActual.getProtocol(transportId)).send(nodoActual,Network.get(receptor),mensaje,layerId);
+					} 
 					
 					break;
 				// Publicar en un tópico
 				case 2:
 					System.out.println("\nPublicar en tópico");
+					int topico = nodoActual.publicarEnTopico((int)nodoActual.getID());
+					if(topico<0){
+						// mensaje de error desde ExampleNode
+					}else{
+						// Se envía a topico
+						mensaje.setDestination(topico);
+						// Acción 3 indicará a topico la llegada de publicación
+						mensaje.setAccion(3);
+						// Se envía mensaje a tópicp
+						((Transport)nodoActual.getProtocol(transportId)).send(nodoActual, Network.get(topico), mensaje, layerId);
+					}
+					
 					break;
 				// Borrar contenido
 				case 3:
@@ -156,7 +191,7 @@ public class Layer implements Cloneable, EDProtocol {
 						// Acción 2 indicará a receptor que se suscriben a su contenido
 						mensaje.setAccion(2);
 						
-						((Transport)nodoActual.getProtocol(transportId)).send(nodoActual,Network.get(receptor),message,layerId);
+						((Transport)nodoActual.getProtocol(transportId)).send(nodoActual,Network.get(receptor),mensaje,layerId);
 					}
 					break;
 				// Cancelar registro 
