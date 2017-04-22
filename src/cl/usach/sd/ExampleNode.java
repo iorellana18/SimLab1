@@ -94,11 +94,14 @@ public class ExampleNode extends GeneralNode {
 		((ExampleNode) Network.get(emisor)).getPublishTo().add((int) receptor.getID());
 		System.out.println("Nodo: "+((ExampleNode) Network.get(emisor)).getID()+ " añade tópico : "+(int) receptor.getID());
 		System.out.println("Tópicos a los que publica: "+((ExampleNode) Network.get(emisor)).getPublishTo());
-		//Emisor se añade a la lista de publicadores del recpetor
-		((ExampleNode) Network.get((int) receptor.getID())).getPublicadores().add(emisor);
-		System.out.println("Tópico "+(int)receptor.getID()+" publicador(es): "+((ExampleNode) Network.get((int)receptor.getID())).getPublicadores());
-		topicos.add((int)receptor.getID());
+		
 		return (int)receptor.getID();
+	}
+	
+	// Se activa cuando recibe mensaje del emisor y lo guarda en su lista de publicadores
+	public void recibeSuscripcion(int publicador, int topico){
+		((ExampleNode) Network.get(topico)).getPublicadores().add(publicador);
+		System.out.println("Publicadores de tópico "+topico+" : "+((ExampleNode) Network.get(topico)).getPublicadores());
 	}
 	
 	// Se registra en tópico existente
@@ -114,10 +117,11 @@ public class ExampleNode extends GeneralNode {
 			if(!((ExampleNode) Network.get(emisor)).getPublishTo().contains(receptor)){
 				//Se añade a lista para publicar del emisor
 				((ExampleNode) Network.get(emisor)).getPublishTo().add(receptor);
+				//Se añade a la lista de tópicos
+				((ExampleNode) Network.get(receptor)).setIsTopic(true);
 				System.out.println("Nodo: "+((ExampleNode) Network.get(emisor)).getID()+ " añade tópico : "+receptor);
 				System.out.println("Tópicos a los que publica: "+((ExampleNode) Network.get(emisor)).getPublishTo());
-				((ExampleNode) Network.get(receptor)).getPublicadores().add(emisor);
-				System.out.println("Tópico "+receptor+" publicador(es): "+((ExampleNode) Network.get(receptor)).getPublicadores());
+				
 				return receptor;
 			}else{
 				System.out.println("Nodo "+emisor+" intenta añadir nodo "+receptor+", pero ya esta incluido");
@@ -126,6 +130,8 @@ public class ExampleNode extends GeneralNode {
 			}
 		}
 	}
+	
+
 	
 	public ArrayList<Integer> buscarTopicos(){
 		ArrayList<Integer> topicos = new ArrayList<Integer>();
@@ -138,7 +144,7 @@ public class ExampleNode extends GeneralNode {
 		return topicos;
 	}
 	
-	// Se registra en topico existente
+	// Se suscribe en topico existente
 	public int suscribirseATopico(int emisor){
 		setTopicos(buscarTopicos());
 		if(topicos.isEmpty()){
@@ -150,18 +156,22 @@ public class ExampleNode extends GeneralNode {
 		if(!((ExampleNode) Network.get(emisor)).getSuscribeTo().contains(topico)){
 			//Se añade en suscriptor el topico a la lista
 			((ExampleNode) Network.get(emisor)).getSuscribeTo().add(topico);
-			//Se añade en topico a la lista de suscriptores
-			((ExampleNode) Network.get(topico)).getSuscriptores().add(emisor);
 			System.out.println("Nodo: "+((ExampleNode) Network.get(emisor)).getID()+ " se suscribe a tópico : "+topico);
 			System.out.println("Tópicos a los que esta suscrito: "+((ExampleNode) Network.get(emisor)).getSuscribeTo());
-			System.out.println("Topico "+topico+" reenvía a nodos : " +((ExampleNode)Network.get(topico)).getSuscriptores());
 			return topico;
 		}else{
 			System.out.println("Nodo "+emisor+" intenta suscribirse a nodo "+topico+", pero ya esta suscrito");
-			System.out.println("Topicos a los que esta suscrito : "+((ExampleNode)Network.get(emisor)).getSuscribeTo());
+			System.out.println("Tópicos a los que esta suscrito : "+((ExampleNode)Network.get(emisor)).getSuscribeTo());
 			return -1;
 			
 		}
+	}
+	
+	// Se activa cuando le llega una solicitud de suscripción a un tópico
+	public void agregarSuscriptor(int suscriptor, int topico){
+		//Se añade en topico a la lista de suscriptores
+		((ExampleNode) Network.get(topico)).getSuscriptores().add(suscriptor);
+		System.out.println("Tópico "+topico+" atualiza lista de suscriptores : " +((ExampleNode)Network.get(topico)).getSuscriptores());
 	}
 	
 	// Modificar/Obtener lista a los que se publica

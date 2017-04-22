@@ -22,7 +22,8 @@ public class TrafficGenerator implements Control {
 		// Consideraremos cualquier nodo de manera aleatoria de la red para comenzar
 		Node initNode = Network.get(CommonState.r.nextInt(Network.size())); 
 		// Se añade mensaje
-		Message message = new Message("Mensaje",((ExampleNode)initNode).getID());
+		// Parámetros: Mensaje, nodo emisor, nodo receptor (se decide después), accion (se decide después)
+		Message message = new Message("Mensaje",((ExampleNode)initNode).getID(),-1,-1);
 		EDSimulator.add(0, message, initNode, layerId);
 		return false;
 	}

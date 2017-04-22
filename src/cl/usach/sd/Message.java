@@ -11,20 +11,20 @@ public class Message {
 	private String mensaje;
 	//quien envía el mensaje
 	private long sender;
+	// Acción que conlleva el mensaje
+	private int accion;
 	
-	public Message(int value,  int destination) {
-
-		this.setValue(value);
-		this.setDestination(destination);
-	}
 	
-	public Message(String mensaje, long sender){
+	
+	public Message(String mensaje, long sender, int destination, int accion){
 		
 		setMensaje(mensaje);
 		setSender(sender);
+		setDestination(destination);
+		setAccion(accion);
 	}
 
-	public int getDestination() {
+	public long getDestination() {
 		return destination;
 	}
 
@@ -45,4 +45,7 @@ public class Message {
 	
 	public void setSender(long sender){this.sender=sender;}
 	public long getSender(){return sender;}
+	
+	public void setAccion(int accion){this.accion=accion;}
+	public int getAccion(){return accion;}
 }

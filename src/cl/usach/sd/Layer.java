@@ -31,7 +31,7 @@ public class Layer implements Cloneable, EDProtocol {
 		 * */	
 		Message message = (Message) event;
 		//Imprimie mensaje
-		System.out.println(message.getMensaje());
+		//System.out.println(message.getMensaje());
 		
 
 		sendmessage(myNode, layerId, message);
@@ -51,7 +51,7 @@ public class Layer implements Cloneable, EDProtocol {
 		// Castear mensaje
 		Message mensaje = (Message)message;
 		// Casteo de nodo
-		ExampleNode emisor = (ExampleNode)currentNode;
+		ExampleNode nodoActual = (ExampleNode)currentNode;
 		
 		// Random que decide que hará el nodo
 		int accion = CommonState.r.nextInt(2);
@@ -59,80 +59,123 @@ public class Layer implements Cloneable, EDProtocol {
 		// Nodo Receptor
 		int receptor;
 		
-		// Verifica resultado
-		int resultado;
-		switch(accion){
-		// Acciones publicador
-		case 0:
-			int subaccion = CommonState.r.nextInt(5);
-			switch(subaccion){
-			// Registrarse en un nuevo tópico
+		// Cuando nodo recibe un mensaje
+		if(mensaje.getDestination()==nodoActual.getID() && mensaje.getDestination()!=0){
+			System.out.println("\nMensaje recibido");
+			System.out.println("Nodo "+nodoActual.getID());
+			switch(mensaje.getAccion()){
+			// caso 0 y 1 hacen lo mismo, sólo que el 0 es cuando se crea un nuevo topico y 1 cuando ya existe
 			case 0:
-				System.out.println("\nRegistrare a nuevo tópico");
-				// Nuevo nodo receptor y topico
-				receptor =  (int)Network.get(emisor.creaTopico((int)emisor.getID())).getID();
-				((Transport) emisor.getProtocol(transportId)).send(emisor, Network.get(receptor), message, layerId);
-				
+				System.out.println("Me inscribo como tópico para el  nodo publicador : "+mensaje.getSender());
+				// Notifica que se suscribieron como publicador
+				nodoActual.recibeSuscripcion((int)mensaje.getSender(), (int) nodoActual.getID());
+				// No envía mensajes
 				break;
-			// Registrarse en un topico existente	
 			case 1:
-				System.out.println("\nRegistrare en tópico existente");
-				resultado = (int)emisor.registraTopico((int)emisor.getID());
-				if(resultado<0){
-					// mensaje de error desde ExampleNode
-				}else{
-					receptor = resultado;
-					((Transport)emisor.getProtocol(transportId)).send(emisor,Network.get(receptor),message,layerId);
-				}
-				
+				System.out.println("Me inscribo como tópico para el nodo publicador: "+mensaje.getSender());
+				// Notifica que se suscribieron como publicador
+				nodoActual.recibeSuscripcion((int)mensaje.getSender(), (int) nodoActual.getID());
+				// No envía mensajes
 				break;
-			// Publicar en un tópico
 			case 2:
-				System.out.println("\nPublicar en tópico");
-				break;
-			// Borrar contenido
-			case 3:
-				System.out.println("\nBorrar contenido");
-				break;
-			// Desinscribirse
-			case 4:
-				System.out.println("\nDesinscribirse como publicador");
-				break;
-			default:
+				System.out.println("Me inscribo como tópico para el nodo suscriptor: "+mensaje.getSender());
+				// Notifica que se agregaron como suscriptor
+				nodoActual.agregarSuscriptor((int)mensaje.getSender(),(int)nodoActual.getID());
+				// No envía mensajes
 				break;
 			}
-			break;
-		//Acciones suscriber	
-		case 1:
-			int subaction = CommonState.r.nextInt(3);
-			switch(subaction){
-			// Registrarse en un tópico
+		}else{
+		//Realizar alguna acción sin depender de un mensaje
+			switch(accion){
+			// Acciones publicador
 			case 0:
-				System.out.println("\nRegistrare como suscriptor");
-				resultado = (int)emisor.suscribirseATopico((int)emisor.getID());
-				if(resultado<0){
-					// mensaje de error desde ExampleNode
-				}else{
-					receptor = resultado;
-					((Transport)emisor.getProtocol(transportId)).send(emisor,Network.get(receptor),message,layerId);
+				// Verifica resultado
+				int resultado;
+				int subaccion = CommonState.r.nextInt(5);
+				switch(subaccion){
+				// Registrarse en un nuevo tópico
+				case 0:
+					System.out.println("\nRegistrar nuevo tópico");
+					// Nuevo nodo receptor y topico
+					receptor =  (int)Network.get(nodoActual.creaTopico((int)nodoActual.getID())).getID();
+					// Se envía a receptor
+					mensaje.setDestination(receptor);
+					// Acción 0 indicará a receptor que es un nuevo tópico
+					mensaje.setAccion(0);
+					//Envía mensaje a nodo agregado
+					((Transport) nodoActual.getProtocol(transportId)).send(nodoActual, Network.get(receptor), message, layerId);
+					
+					break;
+				// Registrarse en un topico existente	
+				case 1:
+					System.out.println("\nRegistrare en tópico existente");
+					resultado = (int)nodoActual.registraTopico((int)nodoActual.getID());
+					if(resultado<0){
+						// mensaje de error desde ExampleNode
+					}else{
+						receptor = resultado;
+						// Se envía a receptor
+						mensaje.setDestination(receptor);
+						// Acción 1 indicará a receptor que se agrega el tópico
+						mensaje.setAccion(1);
+						// si nodo no esta añadido le envía un mensaje
+						((Transport)nodoActual.getProtocol(transportId)).send(nodoActual,Network.get(receptor),message,layerId);
+					}
+					
+					break;
+				// Publicar en un tópico
+				case 2:
+					System.out.println("\nPublicar en tópico");
+					break;
+				// Borrar contenido
+				case 3:
+					System.out.println("\nBorrar contenido");
+					break;
+				// Desinscribirse
+				case 4:
+					System.out.println("\nDesinscribirse como publicador");
+					break;
+				default:
+					break;
 				}
 				break;
-			// Cancelar registro 
+			//Acciones suscriber	
 			case 1:
-				System.out.println("\nDesinscribirse como suscriptor");
+				int subaction = CommonState.r.nextInt(3);
+				switch(subaction){
+				// Registrarse en un tópico
+				case 0:
+					System.out.println("\nRegistrare como suscriptor");
+					resultado = (int)nodoActual.suscribirseATopico((int)nodoActual.getID());
+					if(resultado<0){
+						// mensaje de error desde ExampleNode
+					}else{
+						receptor = resultado;
+						// Se envía a receptor
+						mensaje.setDestination(receptor);
+						// Acción 2 indicará a receptor que se suscriben a su contenido
+						mensaje.setAccion(2);
+						
+						((Transport)nodoActual.getProtocol(transportId)).send(nodoActual,Network.get(receptor),message,layerId);
+					}
+					break;
+				// Cancelar registro 
+				case 1:
+					System.out.println("\nDesinscribirse como suscriptor");
+					break;
+				// Request update
+				case 2:
+					System.out.println("\nRequest update");
+					break;
+				default:
+					System.out.println("\nRegistrare como suscriptor");
+					break;
+				}
 				break;
-			// Request update
-			case 2:
-				System.out.println("\nRequest update");
-				break;
-			default:
-				System.out.println("\nRegistrare como suscriptor");
-				break;
+			
+			default:{
+				System.out.println("Saltar acción");
 			}
-			break;
-		
-		default:{
-			System.out.println("Saltar acción");
 		}
 		}
 	}
