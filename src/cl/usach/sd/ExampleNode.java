@@ -25,6 +25,8 @@ public class ExampleNode extends GeneralNode {
 	//Listas para topicos
 	private ArrayList<Integer> publicadores;
 	private ArrayList<Integer> suscriptores;
+	//Lista de mensajes almacenados
+	private ArrayList<String> mensajes;
 
 	public ExampleNode(String prefix) {
 		super(prefix);
@@ -40,6 +42,7 @@ public class ExampleNode extends GeneralNode {
 		setTopicos(new ArrayList<Integer>());
 		setPublicadores(new ArrayList<Integer>());
 		setSuscriptores(new ArrayList<Integer>());
+		setMensajes(new ArrayList<String>());
 	}
 	
 	
@@ -269,6 +272,29 @@ public class ExampleNode extends GeneralNode {
 		System.out.println("Lista de suscriptores actualizada : "+suscriptores);
 	}
 	
+	//Agregar publicación
+	public void agregaPublicación(int suscriptor, String mensaje){
+		//Se agrega publicación recibida a suscriptor
+		((ExampleNode)Network.get(suscriptor)).getMensajes().add(mensaje);
+		System.out.println("Nodo "+suscriptor+" añade mensaje : "+mensaje);
+		System.out.println("Lista de publicaciones guardadas : "+((ExampleNode)Network.get(suscriptor)).getMensajes());
+	}
+	
+	
+	//Request Update
+	public void requestUpdate(int suscriptor){
+		//Procesa mensajes recibidos
+		ArrayList<String> publicaciones = ((ExampleNode)Network.get(suscriptor)).getMensajes();
+		if(publicaciones.isEmpty()){
+			System.out.println("Nodo "+suscriptor+" no posee publicaciones");
+		}else{
+			for(int i=0;i<publicaciones.size();i++){
+				System.out.println("Procesando publicacion "+publicaciones.get(i));
+			}
+		}
+	}
+	
+	
 	// Modificar/Obtener lista a los que se publica
 	public void setṔublishTo(ArrayList<Integer> publishTo){this.publishTo=publishTo;}
 	public ArrayList<Integer> getPublishTo(){return publishTo;}
@@ -294,4 +320,8 @@ public class ExampleNode extends GeneralNode {
 	public ArrayList<Integer> getPublicadores(){return publicadores;}
 	public void setSuscriptores(ArrayList<Integer> suscriptores){this.suscriptores=suscriptores;}
 	public ArrayList<Integer> getSuscriptores(){return suscriptores;}
+	
+	//Modificar/Obtener mensajes
+	public void setMensajes(ArrayList<String> mensajes){this.mensajes=mensajes;}
+	public ArrayList<String> getMensajes(){return mensajes;}
 }

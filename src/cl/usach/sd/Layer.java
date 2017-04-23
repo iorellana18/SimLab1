@@ -101,6 +101,8 @@ public class Layer implements Cloneable, EDProtocol {
 						int suscriptor = suscriptores.get(i);
 						//Se setea receptor del mensaje
 						mensaje.setDestination(suscriptor);
+				        //Se setea contenido del mensaje
+						mensaje.setMensaje("Mensaje desde tópico "+nodoActual.getID());
 						// Se envía a destino
 						System.out.println("Enviando a : "+suscriptor);
 						((Transport) nodoActual.getProtocol(transportId)).send(nodoActual, Network.get(suscriptor), mensaje, layerId);
@@ -109,6 +111,7 @@ public class Layer implements Cloneable, EDProtocol {
 				break;
 			case 4:
 				System.out.println("Publicación recibida");
+				nodoActual.agregaPublicación((int)nodoActual.getID(), mensaje.getMensaje());
 				break;
 			case 5:
 				System.out.println("Remover publicador");
@@ -169,7 +172,7 @@ public class Layer implements Cloneable, EDProtocol {
 						mensaje.setDestination(topico);
 						// Acción 3 indicará a topico la llegada de publicación
 						mensaje.setAccion(3);
-						// Se envía mensaje a tópicp
+						// Se envía mensaje a tópico
 						((Transport)nodoActual.getProtocol(transportId)).send(nodoActual, Network.get(topico), mensaje, layerId);
 					}
 					
@@ -236,6 +239,7 @@ public class Layer implements Cloneable, EDProtocol {
 				// Request update
 				case 2:
 					System.out.println("\nRequest update");
+					nodoActual.requestUpdate((int)nodoActual.getID());
 					break;
 				}
 				break;

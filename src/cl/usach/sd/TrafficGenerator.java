@@ -23,7 +23,7 @@ public class TrafficGenerator implements Control {
 		Node initNode = Network.get(CommonState.r.nextInt(Network.size())); 
 		// Se añade mensaje
 		// Parámetros: Mensaje, nodo emisor, nodo receptor (se decide después), accion (se decide después)
-		Message message = new Message("Mensaje",((ExampleNode)initNode).getID(),-1,-1);
+		Message message = new Message("Mensaje  ",((ExampleNode)initNode).getID(),-1,-1);
 		EDSimulator.add(0, message, initNode, layerId);
 		return false;
 	}
