@@ -102,9 +102,17 @@ public class Layer implements Cloneable, EDProtocol {
 						//Se setea receptor del mensaje
 						mensaje.setDestination(suscriptor);
 						// Se envía a destino
+						System.out.println("Enviando a : "+suscriptor);
 						((Transport) nodoActual.getProtocol(transportId)).send(nodoActual, Network.get(suscriptor), mensaje, layerId);
 					}
 				}
+				break;
+			case 4:
+				System.out.println("Publicación recibida");
+				break;
+			case 5:
+				System.out.println("Remover publicador");
+				nodoActual.removerPublicadorDeTopico((int)mensaje.getSender(), (int)nodoActual.getID());
 				break;
 			}
 		}else{
@@ -169,6 +177,18 @@ public class Layer implements Cloneable, EDProtocol {
 				// Desinscribirse
 				case 4:
 					System.out.println("\nDesinscribirse como publicador");
+					//Obtiene tópico a remover
+					int topicoARemover = nodoActual.desInscribeComoPublicador((int)nodoActual.getID());
+					if(topicoARemover<0){
+						// mensaje de error desde ExampleNode
+					}else{
+						// Envía mensaje 
+						mensaje.setDestination(topicoARemover);
+						//mensaje 5 indica que se removera tópico
+						mensaje.setAccion(5);
+						// Luego debe enviar mensaje a tópico para notificar la eliminación
+						((Transport)nodoActual.getProtocol(transportId)).send(nodoActual, Network.get(topicoARemover), mensaje, layerId);
+					}
 					break;
 				default:
 					break;

@@ -201,6 +201,37 @@ public class ExampleNode extends GeneralNode {
 		
 	}
 	
+	public int desInscribeComoPublicador(int emisor){
+		// Obtiene lista de topicos a los que publica
+		ArrayList<Integer> topicos = ((ExampleNode)Network.get(emisor)).getPublishTo();
+		if(topicos.isEmpty()){
+			System.out.println("Nodo "+emisor);
+			System.out.println("No hay tópicos que desinscribir");
+			return -1;
+		}else{
+			// Elige el tópico que va a remover
+			int topicoARemover = topicos.get(CommonState.r.nextInt(topicos.size()));
+			System.out.println("Nodo "+emisor+" remueve tópico "+topicoARemover);
+			//Indice del tópico a remover
+			int indice = ((ExampleNode)Network.get(emisor)).getPublishTo().indexOf(topicoARemover);
+			//Remueve tópico
+			((ExampleNode)Network.get(emisor)).getPublishTo().remove(indice);
+			System.out.println("Tópicos a los que publica actualmente :"+((ExampleNode)Network.get(emisor)).getPublishTo());
+			return topicoARemover;
+		}
+	}
+	
+	public void removerPublicadorDeTopico(int publicador, int topico){
+		//Obtiene la lista de publicadores del tópico
+		ArrayList <Integer> publicadores = ((ExampleNode)Network.get(topico)).getPublicadores();
+		//Obtiene indice de publicador a eliminat
+		int indice = publicadores.indexOf(publicador);
+		//Elimina publicador
+		((ExampleNode)Network.get(topico)).getPublicadores().remove(indice);
+		System.out.println("Tópico "+topico+" elimina nodo publicador "+publicador);
+		System.out.println("Lista de publicadores actualizada : "+publicadores);
+	}
+	
 	// Modificar/Obtener lista a los que se publica
 	public void setṔublishTo(ArrayList<Integer> publishTo){this.publishTo=publishTo;}
 	public ArrayList<Integer> getPublishTo(){return publishTo;}
