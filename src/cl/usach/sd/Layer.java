@@ -114,6 +114,10 @@ public class Layer implements Cloneable, EDProtocol {
 				System.out.println("Remover publicador");
 				nodoActual.removerPublicadorDeTopico((int)mensaje.getSender(), (int)nodoActual.getID());
 				break;
+			case 6:
+				System.out.println("Remover suscriptor");
+				nodoActual.removerSuscriptor((int)nodoActual.getID(),(int) mensaje.getSender());
+				break;
 			}
 		}else{
 		//Realizar alguna acción sin depender de un mensaje
@@ -200,7 +204,7 @@ public class Layer implements Cloneable, EDProtocol {
 				switch(subaction){
 				// Registrarse en un tópico
 				case 0:
-					System.out.println("\nRegistrare como suscriptor");
+					System.out.println("\nRegistrarse como suscriptor");
 					resultado = (int)nodoActual.suscribirseATopico((int)nodoActual.getID());
 					if(resultado<0){
 						// mensaje de error desde ExampleNode
@@ -217,13 +221,21 @@ public class Layer implements Cloneable, EDProtocol {
 				// Cancelar registro 
 				case 1:
 					System.out.println("\nDesinscribirse como suscriptor");
+					int topico = nodoActual.desinscribirseComoSuscriptor((int)nodoActual.getID());
+					if(topico<0){
+						// Mensaje de error desde ExampleNode
+					}else{
+						// se avisa a topico
+						mensaje.setDestination(topico);
+						// Acción 6 indica que debe borrar suscriptor
+						mensaje.setAccion(6);
+						//Envía mensaje
+						((Transport)nodoActual.getProtocol(transportId)).send(nodoActual,Network.get(topico),mensaje,layerId);
+					}
 					break;
 				// Request update
 				case 2:
 					System.out.println("\nRequest update");
-					break;
-				default:
-					System.out.println("\nRegistrare como suscriptor");
 					break;
 				}
 				break;

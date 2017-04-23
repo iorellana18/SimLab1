@@ -155,6 +155,10 @@ public class ExampleNode extends GeneralNode {
 		// Se elige topico entre los existentes para inscribirse
 		int topico = topicos.get(CommonState.r.nextInt(topicos.size()));
 		if(!((ExampleNode) Network.get(emisor)).getSuscribeTo().contains(topico)){
+			if(topico==emisor){
+				System.out.println("error, un nodo no se puede susribir a sí mismo");
+				return -1;
+			}
 			//Se añade en suscriptor el topico a la lista y topico a la lista
 			((ExampleNode) Network.get(topico)).setIsTopic(true);
 			((ExampleNode) Network.get(emisor)).getSuscribeTo().add(topico);
@@ -221,6 +225,7 @@ public class ExampleNode extends GeneralNode {
 		}
 	}
 	
+	// elimina publicador de un topico
 	public void removerPublicadorDeTopico(int publicador, int topico){
 		//Obtiene la lista de publicadores del tópico
 		ArrayList <Integer> publicadores = ((ExampleNode)Network.get(topico)).getPublicadores();
@@ -230,6 +235,38 @@ public class ExampleNode extends GeneralNode {
 		((ExampleNode)Network.get(topico)).getPublicadores().remove(indice);
 		System.out.println("Tópico "+topico+" elimina nodo publicador "+publicador);
 		System.out.println("Lista de publicadores actualizada : "+publicadores);
+	}
+	
+	// Un suscriptor se sale de un topico
+	public int desinscribirseComoSuscriptor(int suscriptor){
+		//Obtiene la lista de topicos a los que está suscrito
+		ArrayList <Integer> topicos = ((ExampleNode)Network.get(suscriptor)).getSuscribeTo();
+		// Compruba si esta suscrito a tópicos
+		if(topicos.isEmpty()){
+			System.out.println("Nodo "+suscriptor+" no está suscrito a ningún tópico");
+			return -1;
+		}else{
+			//Elige tópico para desinscribirse
+			int topicoARemover = topicos.get(CommonState.r.nextInt(topicos.size()));
+			int indice = topicos.indexOf(topicoARemover);
+			//Elimina topico
+			((ExampleNode)Network.get(suscriptor)).getSuscribeTo().remove(indice);
+			System.out.println("Nodo "+suscriptor+" se desinscribe de tópico "+ topicoARemover);
+			System.out.println("Se actualiza lista de tópicos a los que se está suscrito: "+ ((ExampleNode)Network.get(suscriptor)).getSuscribeTo());
+			return topicoARemover;
+		}
+	}
+	
+	// Activa cuando a topico se le notifica que un nodo se salió como suscriptor
+	public void removerSuscriptor(int topico, int suscriptor){
+		//Obtiene la lista de suscriptores del tópico
+		ArrayList <Integer> suscriptores= ((ExampleNode)Network.get(topico)).getSuscriptores();
+		//Obtiene indice de publicador a eliminat
+		int indice = suscriptores.indexOf(suscriptor);
+		//Elimina publicador
+		((ExampleNode)Network.get(topico)).getSuscriptores().remove(indice);
+		System.out.println("Tópico "+topico+" elimina nodo suscriptor "+suscriptor);
+		System.out.println("Lista de suscriptores actualizada : "+suscriptores);
 	}
 	
 	// Modificar/Obtener lista a los que se publica
