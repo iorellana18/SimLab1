@@ -289,9 +289,28 @@ public class ExampleNode extends GeneralNode {
 			System.out.println("Nodo "+suscriptor+" no posee publicaciones");
 		}else{
 			for(int i=0;i<publicaciones.size();i++){
-				System.out.println("Procesando publicacion "+publicaciones.get(i));
+				System.out.println("Procesando publicacion : "+publicaciones.get(i));
 			}
 		}
+	}
+	
+	public int borrarContenido(int publicador){
+		//Selecciona tópico del cual quiere borrar contenido
+		ArrayList<Integer> listaTopicos = ((ExampleNode)Network.get(publicador)).getPublishTo();
+		if(listaTopicos.isEmpty()){
+			System.out.println("No posee tópicos para publicar");
+			return -1;
+		}
+		int topico = listaTopicos.get(CommonState.r.nextInt(listaTopicos.size()));
+		//Notifica a nodo
+		System.out.println("Nodo "+publicador+ " notifica la eliminación de contenido al tópico "+ topico);
+		return topico;
+	}
+	
+	public ArrayList<Integer> removerPublicaciónTopico(int topico){
+		//Selecciona suscriptores
+		ArrayList<Integer> listaSuscriptores = ((ExampleNode)Network.get(topico)).getSuscriptores();
+		return listaSuscriptores;
 	}
 	
 	
